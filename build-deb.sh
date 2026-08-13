@@ -20,7 +20,6 @@ mkdir -p "$BUILD_DIR/opt/tarsila-email/bin" \
          "$BUILD_DIR/opt/tarsila-email/ui/js" \
          "$BUILD_DIR/opt/tarsila-email/ui/icons" \
          "$BUILD_DIR/usr/local/bin" \
-         "$BUILD_DIR/usr/share/tarsila/applications" \
          "$BUILD_DIR/usr/share/applications"
 
 install -m 755 "$SCRIPT_DIR/src/opt/tarsila-email/bin/"*.py  "$BUILD_DIR/opt/tarsila-email/bin/"
@@ -30,8 +29,6 @@ install -m 644 "$SCRIPT_DIR/src/opt/tarsila-email/ui/css/"*.css  "$BUILD_DIR/opt
 install -m 644 "$SCRIPT_DIR/src/opt/tarsila-email/ui/js/"*.js    "$BUILD_DIR/opt/tarsila-email/ui/js/"
 install -m 644 "$SCRIPT_DIR/src/opt/tarsila-email/ui/icons/"*    "$BUILD_DIR/opt/tarsila-email/ui/icons/"
 install -m 755 "$SCRIPT_DIR/src/usr/local/bin/tarsila-email" "$BUILD_DIR/usr/local/bin/"
-install -m 644 "$SCRIPT_DIR/src/usr/share/tarsila/applications/tarsila-email.desktop" \
-    "$BUILD_DIR/usr/share/tarsila/applications/tarsila-email.desktop"
 install -m 644 "$SCRIPT_DIR/src/usr/share/applications/tarsila-email.desktop" \
     "$BUILD_DIR/usr/share/applications/tarsila-email.desktop"
 

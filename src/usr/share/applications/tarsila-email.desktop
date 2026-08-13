@@ -8,4 +8,5 @@ Icon=internet-mail
 Terminal=false
 Categories=Network;Email;
 StartupNotify=true
+StartupWMClass=tarsila-email
 Keywords=email;gmail;tarsila;

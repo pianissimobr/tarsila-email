@@ -22,7 +22,14 @@ Cliente GTK3 **100% standalone** (sem WebKit, sem Claws Mail) com:
 | `ui/` | CSS, ícones, SPA de fallback |
 | `usr/local/bin/tarsila-email` | Launcher |
 | `usr/share/applications/tarsila-email.desktop` | Atalho genérico (menu XDG de qualquer Debian) |
-| `usr/share/tarsila/applications/tarsila-email.desktop` | Atalho curado (dock/appfinder do Tarsila, com ações de desinstalar) |
+
+## Integração com o Tarsila OS
+
+O `.desktop` é instalado apenas em `/usr/share/applications/` (XDX padrão).
+No Tarsila OS, o **app-manager** (`tarsila-atalho-criar`) adota o app no
+catálogo curado (`/usr/share/tarsila/applications/`), adicionando as ações
+de dock e desinstalação. Isso é feito pelo `install.sh` do core na instalação,
+ou pelo app-manager depois (migração/duplo clique).
 
 ## Build
 
