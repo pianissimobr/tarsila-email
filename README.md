@@ -21,7 +21,8 @@ Cliente GTK3 **100% standalone** (sem WebKit, sem Claws Mail) com:
 | `lib/` | config, db, imap_sync, smtp_send, avatar, api_client |
 | `ui/` | CSS, ícones, SPA de fallback |
 | `usr/local/bin/tarsila-email` | Launcher |
-| `usr/share/tarsila/applications/tarsila-email.desktop` | Atalho curado |
+| `usr/share/applications/tarsila-email.desktop` | Atalho genérico (menu XDG de qualquer Debian) |
+| `usr/share/tarsila/applications/tarsila-email.desktop` | Atalho curado (dock/appfinder do Tarsila, com ações de desinstalar) |
 
 ## Build
 

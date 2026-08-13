@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Tarsila Email
+GenericName=E-mail
+Comment=Gmail leve — sync local sem navegador
+Exec=/usr/local/bin/tarsila-email
+Icon=internet-mail
+Terminal=false
+Categories=Network;Email;
+StartupNotify=true
+Keywords=email;gmail;tarsila;
