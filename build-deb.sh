@@ -16,18 +16,11 @@ echo "==> Construindo $DEB..."
 cp -a "$SCRIPT_DIR/DEBIAN" "$BUILD_DIR/"
 mkdir -p "$BUILD_DIR/opt/tarsila-email/bin" \
          "$BUILD_DIR/opt/tarsila-email/lib" \
-         "$BUILD_DIR/opt/tarsila-email/ui/css" \
-         "$BUILD_DIR/opt/tarsila-email/ui/js" \
-         "$BUILD_DIR/opt/tarsila-email/ui/icons" \
          "$BUILD_DIR/usr/local/bin" \
          "$BUILD_DIR/usr/share/applications"
 
 install -m 755 "$SCRIPT_DIR/src/opt/tarsila-email/bin/"*.py  "$BUILD_DIR/opt/tarsila-email/bin/"
 install -m 644 "$SCRIPT_DIR/src/opt/tarsila-email/lib/"*.py  "$BUILD_DIR/opt/tarsila-email/lib/"
-install -m 644 "$SCRIPT_DIR/src/opt/tarsila-email/ui/index.html" "$BUILD_DIR/opt/tarsila-email/ui/"
-install -m 644 "$SCRIPT_DIR/src/opt/tarsila-email/ui/css/"*.css  "$BUILD_DIR/opt/tarsila-email/ui/css/"
-install -m 644 "$SCRIPT_DIR/src/opt/tarsila-email/ui/js/"*.js    "$BUILD_DIR/opt/tarsila-email/ui/js/"
-install -m 644 "$SCRIPT_DIR/src/opt/tarsila-email/ui/icons/"*    "$BUILD_DIR/opt/tarsila-email/ui/icons/"
 install -m 755 "$SCRIPT_DIR/src/usr/local/bin/tarsila-email" "$BUILD_DIR/usr/local/bin/"
 install -m 644 "$SCRIPT_DIR/src/usr/share/applications/tarsila-email.desktop" \
     "$BUILD_DIR/usr/share/applications/tarsila-email.desktop"

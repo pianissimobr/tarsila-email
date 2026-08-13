@@ -15,7 +15,6 @@ sys.path.insert(0, str(RAIZ))
 from lib import config, db, imap_sync, smtp_send  # noqa: E402
 
 PORT = int(os.environ.get("TARSILA_EMAIL_PORT", "8475"))
-UI_DIR = RAIZ / "ui"
 SETUP = RAIZ / "bin" / "tarsila-email-setup.py"
 _sync_lock = threading.Lock()
 _last_sync = {}
@@ -99,11 +98,6 @@ class Handler(BaseHTTPRequestHandler):
             path = urlparse(self.path)
             qs = parse_qs(path.query)
             p = path.path
-
-            if p == "/" or p == "/index.html":
-                return self._serve_ui("index.html")
-            if p.startswith("/css/") or p.startswith("/js/"):
-                return self._serve_ui(p.lstrip("/"))
 
             if p == "/api/bootstrap":
                 if not config.configured():
@@ -287,23 +281,6 @@ class Handler(BaseHTTPRequestHandler):
         except Exception as e:
             traceback.print_exc()
             self._send(500, {"error": str(e)})
-
-    def _serve_ui(self, rel):
-        fp = UI_DIR / rel
-        if not fp.is_file():
-            return self._send(404, {"error": "Arquivo não encontrado"})
-        ext = fp.suffix.lower()
-        ctype = {
-            ".html": "text/html; charset=utf-8",
-            ".css": "text/css; charset=utf-8",
-            ".js": "application/javascript; charset=utf-8",
-        }.get(ext, "application/octet-stream")
-        data = fp.read_bytes()
-        self.send_response(200)
-        self.send_header("Content-Type", ctype)
-        self.send_header("Content-Length", str(len(data)))
-        self.end_headers()
-        self.wfile.write(data)
 
 
 def main():
