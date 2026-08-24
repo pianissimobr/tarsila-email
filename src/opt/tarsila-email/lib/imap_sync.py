@@ -26,6 +26,23 @@ FOLDER_MAP = {
 
 SYNC_LIMIT = 10
 
+# Quanto do corpo se busca de uma primeira vez, em bytes.
+#
+# Ate 24/08/2026 o fetch_body pedia BODY.PEEK[] -- a mensagem INTEIRA, com
+# anexo e tudo -- so para tirar dela o texto e jogar o resto fora. Medido na
+# TV box com uma mensagem de 20 MB: 20 MB baixados e +222 MB de RSS, para
+# extrair 18 bytes de texto. Sozinho, isso estoura o orcamento de ~300 MB da
+# sessao grafica inteira e chama o earlyoom.
+#
+# O IMAP sabe entregar so um pedaco (RFC 3501, "partial fetch"), e o MIME de
+# mensagem real poe o texto ANTES dos anexos -- entao os primeiros 256 KB
+# contem o que se quer ler em praticamente toda mensagem. Mesma medicao com
+# o pedaco: 0,2 MB baixados, +0 MB de RSS, o MESMO texto.
+#
+# Quando o texto nao vier nesse comeco (anexo gigante antes do texto, raro),
+# o codigo percebe e busca a mensagem inteira -- ver fetch_body.
+CORPO_PARCIAL = 256 * 1024
+
 
 def _decode_header(val: str | None) -> str:
     if not val:
@@ -270,6 +287,24 @@ def sync_all(limit_per_folder: int = SYNC_LIMIT) -> dict:
             pass
 
 
+def _fetch_bruto(M, uid: bytes, spec: str) -> bytes | None:
+    """Bytes crus de um FETCH, ou None se o servidor recusou o pedido.
+
+    Devolver None em vez de levantar e o que permite tentar um pedido mais
+    barato primeiro e recuar para o caro so se preciso -- nem todo servidor
+    IMAP aceita busca parcial.
+    """
+    try:
+        typ, parts = M.fetch(uid, spec)
+    except Exception:
+        return None
+    if typ != "OK" or not parts or not parts[0]:
+        return None
+    if not isinstance(parts[0], tuple):
+        return None
+    return parts[0][1] or None
+
+
 def fetch_body(msg_id: str) -> dict:
     conn = db.connect()
     row = db.get_message(conn, msg_id)
@@ -285,15 +320,32 @@ def fetch_body(msg_id: str) -> dict:
     M = connect()
     try:
         _select(M, f["imap_name"], readonly=True)
-        typ, parts = M.fetch(str(row["uid"]).encode(), "(BODY.PEEK[])")
-        if typ != "OK" or not parts or not parts[0]:
-            raise ValueError("Fetch falhou")
-        raw = parts[0][1] if isinstance(parts[0], tuple) else None
+        uid = str(row["uid"]).encode()
+
+        # Primeiro so o comeco da mensagem: e onde o texto mora.
+        raw = _fetch_bruto(M, uid, "(BODY.PEEK[]<0.%d>)" % CORPO_PARCIAL)
+        truncado = raw is not None and len(raw) >= CORPO_PARCIAL
+
+        if raw is None:
+            # Servidor que nao aceitou o pedido parcial. Nao e motivo para
+            # deixar o usuario sem ler o e-mail: cai no jeito antigo.
+            raw = _fetch_bruto(M, uid, "(BODY.PEEK[])")
+            truncado = False
         if not raw:
             raise ValueError("Corpo vazio")
+
         em = email.message_from_bytes(raw)
         plain, html = _extract_bodies(em)
         has_att = _has_attachments(em)
+
+        # Texto nao apareceu no comeco -- mensagem com anexo antes do corpo.
+        # So agora vale pagar a mensagem inteira, e so nesse caso.
+        if truncado and not (plain or html):
+            inteiro = _fetch_bruto(M, uid, "(BODY.PEEK[])")
+            if inteiro:
+                em = email.message_from_bytes(inteiro)
+                plain, html = _extract_bodies(em)
+                has_att = _has_attachments(em)
         conn.execute(
             """UPDATE messages SET body_plain=?, body_html=?,
                has_attachments=?, snippet=?, synced_at=? WHERE id=?""",
