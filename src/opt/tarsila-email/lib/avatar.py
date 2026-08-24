@@ -11,6 +11,13 @@ from . import config
 CACHE_DIR = config.DATA_DIR / "avatars"
 UA = "Mozilla/5.0 (compatible; TarsilaEmail/2.0)"
 
+# Teto do que se aceita baixar. As URLs sao de servicos de TERCEIROS
+# (gravatar, unavatar, google) -- o tamanho da resposta nao esta sob nosso
+# controle, e um `read()` sem limite carrega na memoria o que vier. Numa TV
+# box de 2 GB, com a sessao inteira orcada em ~300 MB, isso e risco a troco
+# de nada: o avatar pedido tem 128 px, alguns KB. 2 MB e folga larga.
+LIMITE_AVATAR = 2 * 1024 * 1024
+
 
 def gravatar_url(email: str) -> str:
     h = hashlib.md5(email.strip().lower().encode()).hexdigest()
@@ -59,7 +66,13 @@ def _try_download(url: str) -> tuple[bytes, str] | None:
     try:
         req = urllib.request.Request(url, headers={"User-Agent": UA})
         with urllib.request.urlopen(req, timeout=10) as r:
-            data = r.read()
+            # Le no maximo o teto + 1 byte: se vier mais, o excedente denuncia
+            # que a resposta estourou e o avatar e descartado. Truncar seria
+            # pior -- entraria no cache uma imagem cortada, que falha na hora
+            # de desenhar e nunca mais e rebaixada.
+            data = r.read(LIMITE_AVATAR + 1)
+            if len(data) > LIMITE_AVATAR:
+                return None
             ctype = r.headers.get_content_type() or ""
             if len(data) > 400 and ctype.startswith("image"):
                 return data, ctype

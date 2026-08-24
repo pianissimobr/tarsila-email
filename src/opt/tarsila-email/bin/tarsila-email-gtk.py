@@ -604,7 +604,11 @@ class EmailWindow(Gtk.Window):
                 try:
                     req = urllib.request.Request(avatar_path, headers={"User-Agent": "TarsilaEmail/2.1"})
                     with urllib.request.urlopen(req, timeout=15) as r:
-                        data = r.read()
+                        # Mesmo teto do lib/avatar.py: URL de terceiro, e um
+                        # read() sem limite traz o que vier para a memoria.
+                        data = r.read(avmod.LIMITE_AVATAR + 1)
+                        if len(data) > avmod.LIMITE_AVATAR:
+                            data = None
                 except Exception:
                     data = None
             elif avatar_path.startswith("/"):

@@ -47,10 +47,19 @@ class Api:
         except Exception:
             return False
 
-    def fetch_bytes(self, path: str) -> bytes | None:
+    def fetch_bytes(self, path: str, limite: int = 2 * 1024 * 1024) -> bytes | None:
+        """Baixa ate `limite` bytes. Devolve None se a resposta passar disso.
+
+        Serve so para avatar (poucos KB), mas aceita URL de fora -- e um
+        `read()` sem teto carrega na memoria o que o outro lado mandar. Numa
+        TV box de 2 GB isso e risco de graca; ver a nota em lib/avatar.py.
+        Recusar e melhor que truncar: imagem cortada entra no cache e falha
+        toda vez que for desenhada.
+        """
         url = path if path.startswith("http") else self.base + path
         try:
             with urllib.request.urlopen(url, timeout=15) as r:
-                return r.read()
+                dados = r.read(limite + 1)
+                return None if len(dados) > limite else dados
         except Exception:
             return None
