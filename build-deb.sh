@@ -30,6 +30,12 @@ install -m 755 "$SCRIPT_DIR/src/usr/local/bin/tarsila-email" "$BUILD_DIR/usr/loc
 install -m 644 "$SCRIPT_DIR/src/usr/share/applications/tarsila-email.desktop" \
     "$BUILD_DIR/usr/share/applications/tarsila-email.desktop"
 
+# O aviso de licenca vai DENTRO do pacote, em /usr/share/doc/<pkg>/copyright,
+# que e onde a convencao Debian manda procurar. Este build monta o pacote
+# listando arquivo por arquivo, entao nada entra sozinho.
+install -D -m 644 "$SCRIPT_DIR/src/usr/share/doc/tarsila-email/copyright" \
+    "$BUILD_DIR/usr/share/doc/tarsila-email/copyright"
+
 chmod 755 "$BUILD_DIR/DEBIAN/postinst"
 
 dpkg-deb --build --root-owner-group "$BUILD_DIR" "$DEB"
