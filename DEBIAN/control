@@ -5,7 +5,8 @@ Priority: optional
 Architecture: all
 Depends: python3, python3-gi, python3-gi-cairo, gir1.2-gtk-3.0, gir1.2-gdkpixbuf-2.0, fonts-roboto, xdg-utils
 Recommends: libnotify-bin
-Maintainer: Tarsila OS <tarsila@local>
+Maintainer: Piano Lab Ribeirao <adm@pianolabribeirao.com.br>
+Homepage: https://pianolabribeirao.com.br
 Description: Tarsila Email — cliente Gmail nativo leve
  Cliente de e-mail GTK3 (sem WebKit) com sync bidirecional Gmail via
  IMAP/SMTP, cache SQLite local, notificacoes IMAP IDLE e UI estilo Gmail.
